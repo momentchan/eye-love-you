@@ -1,9 +1,9 @@
 import { Environment, OrbitControls } from "@react-three/drei";
 import { Canvas } from '@react-three/fiber'
-import Eyes from "./Eyes";
-import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
 import { Physics } from "@react-three/rapier";
 import Pointer from "./r3f-gist/interaction/Pointer";
+import Eyes from "./Eyes";
+import Effect from "./Effect";
 
 export default function App() {
     return <>
@@ -28,10 +28,8 @@ export default function App() {
                 <Eyes />
             </Physics>
 
-            <EffectComposer disableNormalPass multisampling={0}>
-                <N8AO halfRes color='black' aoRadius={2} intensity={1} aoSamples={6} denoiseSamples={4} />
-                <SMAA />
-            </EffectComposer>
+            <Effect />
+
             <OrbitControls makeDefault />
         </Canvas>
     </>
