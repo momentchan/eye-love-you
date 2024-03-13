@@ -1,8 +1,12 @@
-## Notes
-The physics is based on [Cannon.js](https://github.com/pmndrs/use-cannon/blob/master/packages/react-three-cannon/README.md) (a physics engine for the web)
+A project showcasing the potential of what web graphics can achieve.
 
-
+### Features
+- Physics
+- Instances
+- Custom Shader Material
+- PostEffects (AO, SMAA)
+- Outlines (useLayoutEffect)
 
 <img src='Screenshot.png' width="480px">
 
-[**Live Demo**](https://momentchan.github.io/r3f-object-clump/)
+[**Demo**](https://momentchan.github.io/eye-love-you/)
