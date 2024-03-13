@@ -31,7 +31,7 @@ const applyForce = (api, scaler) => {
     api.applyImpulse(pos.normalize().multiplyScalar(scaler))
 }
 
-export default function Clump({ mat = new THREE.Matrix4(), vec = new THREE.Vector3(), ...props }) {
+export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector3(), ...props }) {
     const [hitSound] = useState(() => new Audio('./721342__jerimee__table-tennis-toggle.wav'))
     const texture = useTexture('eye.png')
     const rigidBodies = useRef();
@@ -57,8 +57,8 @@ export default function Clump({ mat = new THREE.Matrix4(), vec = new THREE.Vecto
 
         for (let i = 0; i < count; i++) {
             const api = rigidBodies.current[i]
+
             if (api == null) continue
-            const pos = vec3(api.translation())
             applyForce(api, -1)
             const vel = api.linvel()
             const speed = Math.sqrt(vel.x ** 2 + vel.y ** 2 + vel.z ** 2);

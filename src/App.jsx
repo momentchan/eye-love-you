@@ -1,6 +1,6 @@
 import { Environment, OrbitControls } from "@react-three/drei";
 import { Canvas } from '@react-three/fiber'
-import Clump from "./Clump";
+import Eyes from "./Eyes";
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
 import { Physics } from "@react-three/rapier";
 import Pointer from "./r3f-gist/interaction/Pointer";
@@ -25,7 +25,7 @@ export default function App() {
 
             <Physics gravity={[0, 0, 0]}>
                 <Pointer scale={3} />
-                <Clump />
+                <Eyes />
             </Physics>
 
             <EffectComposer disableNormalPass multisampling={0}>
