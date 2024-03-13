@@ -11,9 +11,9 @@ function Overlay() {
             <div className="container" style={{ cursor: clicked ? "none" : "auto" }}>
                 <div className={`fullscreen bg ready"} ${clicked && "clicked"}`}>
                     <div className="stack">
-                        <a href="#" onClick={() => setClicked(true)}>
+                        <p onClick={() => setClicked(true)}>
                             {"Play"}
-                        </a>
+                        </p>
                     </div>
                 </div>
             </div>

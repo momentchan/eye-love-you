@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { useTexture } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { Outlines } from './r3f-gist/effect/Outlines'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import ThreeCustomShaderMaterial from 'three-custom-shader-material'
 import { patchShaders } from 'gl-noise'
 import { InstancedRigidBodies, vec3 } from '@react-three/rapier'
@@ -32,7 +32,7 @@ const applyForce = (api, scaler) => {
 }
 
 export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector3(), ...props }) {
-    const [hitSound] = useState(() => new Audio('./721342__jerimee__table-tennis-toggle.wav'))
+    const camera = useThree((state) => state.camera)
     const texture = useTexture('eye.png')
     const rigidBodies = useRef();
     const mesh = useRef()
@@ -84,14 +84,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
             }}
             linearDamping={0.65}
             angularDamping={0.5}
-            mass={1}
-            onContactForce={(payload) => {
-                if (payload.totalForceMagnitude > 300) {
-                    hitSound.currentTime = 0;
-                    hitSound.volume = rfs(0.25) + 0.75;
-                    hitSound.play();
-                }
-            }}
+            mass={3}
         >
 
             <instancedMesh
