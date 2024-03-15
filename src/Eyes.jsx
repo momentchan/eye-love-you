@@ -98,8 +98,8 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
 
             const vel = api.linvel()
             const speed = Math.sqrt(vel.x ** 2 + vel.y ** 2 + vel.z ** 2);
-            const ratio = THREE.MathUtils.clamp(speed / 10, 0, 1)
-            speedBuffer.setX(i, Math.pow(ratio, 2))
+            const ratio = THREE.MathUtils.clamp(Math.pow(speed / 6, 3), 0, 1)
+            speedBuffer.setX(i, ratio)
 
             // torque
             const cameraPosition = camera.position.clone();
