@@ -37,7 +37,7 @@ const shader = {
 const applyForce = (api, scaler) => {
     const pos = vec3(api.translation())
 
-    const interpolatedT = 1;//(1 - THREE.MathUtils.smoothstep(pos.length(), 2, 12)) * 1 + 1;
+    const interpolatedT = (1 - THREE.MathUtils.smoothstep(pos.length(), 2, 12)) * 1 + 1;
 
     api.applyImpulse(pos.normalize().multiplyScalar(scaler * interpolatedT))
 }
