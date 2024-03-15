@@ -16,13 +16,15 @@ const shader = {
     vertex: /* glsl */ `
       attribute float patternBuffer;
       attribute float speedBuffer;
-
+      
       varying float vSpeedBuffer;
       varying float vPatternBuffer;
       varying vec2 csm_vUv;
+
       void main() {
         vSpeedBuffer = speedBuffer;
         vPatternBuffer = patternBuffer;
+
         csm_vUv = uv;
         csm_PositionRaw = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.);
       }
@@ -30,15 +32,44 @@ const shader = {
     fragment: /* glsl */ `
       uniform sampler2D uBlueTex;
       uniform sampler2D uRedTex;
+      uniform float uTime;
       varying vec2 csm_vUv;
 
       varying float vSpeedBuffer;
       varying float vPatternBuffer;
+
+      vec3 hsv2rgb(vec3 hsv) {
+        float h = hsv.x;
+        float s = hsv.y;
+        float v = hsv.z;
+        
+        float c = v * s;
+        float x = c * (1.0 - abs(mod(h * 6.0, 2.0) - 1.0));
+        float m = v - c;
+        
+        vec3 rgb;
+        if (h < 1.0/6.0) {
+            rgb = vec3(c, x, 0.0);
+        } else if (h < 2.0/6.0) {
+            rgb = vec3(x, c, 0.0);
+        } else if (h < 3.0/6.0) {
+            rgb = vec3(0.0, c, x);
+        } else if (h < 4.0/6.0) {
+            rgb = vec3(0.0, x, c);
+        } else if (h < 5.0/6.0) {
+            rgb = vec3(x, 0.0, c);
+        } else {
+            rgb = vec3(c, 0.0, x);
+        }
+        
+        return rgb + vec3(m);
+      }
+      
       void main() {
 
         vec4 color = mix(texture2D(uBlueTex, csm_vUv),texture2D(uRedTex, csm_vUv), smoothstep(0.2, 0.205, vSpeedBuffer));
         csm_DiffuseColor = color*color;
-        csm_Emissive = vec3(0, 1,1) * vSpeedBuffer;
+        csm_Emissive = hsv2rgb(vec3(fract(uTime * 0.05), 1, 1)) * vSpeedBuffer;
       }
       `,
 }
@@ -66,10 +97,13 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
     }, [])
 
     useEffect(() => {
-        const buffer = new THREE.InstancedBufferAttribute(new Float32Array(count), 1);
-        for (let i = 0; i < count; i++)
-            buffer.setX(i, MathUtils.randInt(0, 1))
-        mesh.current.geometry.setAttribute('patternBuffer', buffer);
+        const pattern = new THREE.InstancedBufferAttribute(new Float32Array(count), 1);
+
+        for (let i = 0; i < count; i++) {
+
+            pattern.setX(i, MathUtils.randInt(0, 1))
+        }
+        mesh.current.geometry.setAttribute('patternBuffer', pattern);
     }, [])
 
 
@@ -101,7 +135,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
         return instances
     }, [])
 
-    useFrame((state, delta) => {
+    useFrame(({ state, delta, clock }) => {
         if (!rigidBodies.current)
             return
 
@@ -131,9 +165,10 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
 
         speedBuffer.needsUpdate = true
         mesh.current.geometry.setAttribute('speedBuffer', speedBuffer);
+        mesh.current.material.uniforms.uTime.value = clock.elapsedTime
     })
 
-THREE.MeshStandardMaterial
+    THREE.MeshStandardMaterial
     return (
         <InstancedRigidBodies
             ref={rigidBodies}
@@ -164,14 +199,15 @@ THREE.MeshStandardMaterial
                 <sphereGeometry args={[1, 32, 32]} />
                 <ThreeCustomShaderMaterial
                     baseMaterial={THREE.MeshStandardMaterial}
-                    roughness={0.2}
+                    roughness={0.8}
                     envMapIntensity={0.5}
                     color='white'
                     fragmentShader={patchShaders(shader.fragment)}
                     vertexShader={patchShaders(shader.vertex)}
                     uniforms={{
                         uBlueTex: { value: blueTex },
-                        uRedTex: { value: redTex }
+                        uRedTex: { value: redTex },
+                        uTime: { value: 0 }
                     }}
                 >
                 </ThreeCustomShaderMaterial>
