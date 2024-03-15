@@ -135,7 +135,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
             }}
             onContactForce={(payload) => {
                 if (payload.totalForceMagnitude > 300) {
-                    const volume = MathUtils.mapLinear(payload.totalForceMagnitude, 300, 1000, 0.01, 0.02)
+                    const volume = MathUtils.mapLinear(payload.totalForceMagnitude, 300, 1000, 0.02, 0.03)
 
                     audioPool.playAudio(volume)
                 }

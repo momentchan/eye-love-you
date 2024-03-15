@@ -12,7 +12,7 @@ export default class AudioPool {
 
             var listId = 0
             for (let j = 0; j < sourcesList.length; j++) {
-                if (r >= sourcesList[j].range[0] && r<sourcesList[j].range[1]){
+                if (r >= sourcesList[j].range[0] && r < sourcesList[j].range[1]) {
                     listId = j
                     break;
                 }
@@ -31,6 +31,7 @@ export default class AudioPool {
 
     playAudio(volume = 1) {
         const audio = this.pool[this.id]
+        if (!(audio.ended || audio.paused)) return
         audio.currentTime = 0;
         audio.volume = volume
         audio.play()
