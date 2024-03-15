@@ -11,7 +11,7 @@ function Overlay() {
             <div className="container" style={{ cursor: clicked ? "none" : "auto" }}>
                 <div className={`fullscreen bg ready"} ${clicked && "clicked"}`}>
                     <div className="stack">
-                        <p onClick={() => setClicked(true)}>
+                        <p className='unselectable' onClick={() => setClicked(true)}>
                             {"Play"}
                         </p>
                     </div>
