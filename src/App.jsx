@@ -21,7 +21,7 @@ export default function App() {
             {/* add light variances  */}
             <Environment files="adamsbridge.hdr" />
             <ambientLight intensity={1.5} />
-            <spotLight intensity={1} angle={0.2} penumbra={1} position={[30, 30, 30]} castShadow shadow-mapSize={[512, 512]} />
+            <spotLight intensity={1}  penumbra={1} position={[30, 30, 30]} castShadow shadow-mapSize={[512, 512]} />
 
             <Physics gravity={[0, 0, 0]}>
                 <Pointer scale={3} />
