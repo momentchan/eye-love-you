@@ -9,12 +9,10 @@ function Overlay() {
         <>
             {clicked && <App />}
             <div className="container" style={{ cursor: clicked ? "none" : "auto" }}>
-                <div className={`fullscreen bg ready"} ${clicked && "clicked"}`}>
-                    <div className="stack">
-                        <p className='unselectable' onClick={() => setClicked(true)}>
-                            {"Play"}
-                        </p>
-                    </div>
+                <div className={`fullscreen bg ready ${clicked ? "clicked" : ""}`}>
+                    <p className={clicked ? "unselectable" : ""} onClick={() => setClicked(true)}>
+                        {"Play"}
+                    </p>
                 </div>
             </div>
         </>

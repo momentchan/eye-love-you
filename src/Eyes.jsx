@@ -62,13 +62,17 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
         { sources: ['48-c3.m4a', '52-e3.m4a', '55-g3.m4a', '45-a2.m4a'], range: [0.33, 0.67] }, // Am7
         { sources: ['52-e3.m4a', '55-g3.m4a', '59-b3.m4a', '62-d4.m4a'], range: [0.67, 1] },] // Em7
 
-
         const progression2 = [{ sources: ['48-c3.m4a', '52-e3.m4a', '55-g3.m4a', '59-b3.m4a', '59-b3.m4a'], range: [0, 0.25] }, // Cmaj7
         { sources: ['48-c3.m4a', '52-e3.m4a', '55-g3.m4a', '45-a2.m4a', '45-a2.m4a'], range: [0.25, 0.5] }, //Am7
         { sources: ['50-d3.m4a', '53-f3.m4a', '58-a3.m4a', '60-c4.m4a'], range: [0.5, 0.75] }, //Dm7
         { sources: ['41-f2.m4a', '45-a2.m4a', '48-c3.m4a', '52-e3.m4a'], range: [0.75, 1] },] // Fmaj7
 
-        return new AudioPool(progression2, 200, true)
+        const progression3 = [{ sources: ['c3.wav', 'e3.wav', 'g3.wav', 'b3.wav'], range: [0, 0.25] },
+        { sources: ['c3.wav', 'e3.wav', 'g3.wav', 'a2.wav'], range: [0.25,0.5] }, 
+        { sources: ['d3.wav', 'f3.wav', 'a3.wav', 'c4.wav'], range: [0.5, 0.75] }, 
+        { sources: ['f2.wav', 'a2.wav', 'c3.wav', 'e3.wav'], range: [0.75, 1] }, ]
+
+        return new AudioPool(progression3, 200, true)
     }, [])
 
     const instances = useMemo(() => {
