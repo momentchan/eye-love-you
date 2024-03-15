@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { useTexture } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Outlines } from './r3f-gist/effect/Outlines'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ThreeCustomShaderMaterial from 'three-custom-shader-material'
 import { patchShaders } from 'gl-noise'
 import { InstancedRigidBodies, quat, vec3 } from '@react-three/rapier'
@@ -14,11 +14,15 @@ const rfs = THREE.MathUtils.randFloatSpread
 
 const shader = {
     vertex: /* glsl */ `
+      attribute float patternBuffer;
       attribute float speedBuffer;
+
       varying float vSpeedBuffer;
+      varying float vPatternBuffer;
       varying vec2 csm_vUv;
       void main() {
         vSpeedBuffer = speedBuffer;
+        vPatternBuffer = patternBuffer;
         csm_vUv = uv;
         csm_PositionRaw = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.);
       }
@@ -29,8 +33,12 @@ const shader = {
       varying vec2 csm_vUv;
 
       varying float vSpeedBuffer;
+      varying float vPatternBuffer;
       void main() {
-        csm_DiffuseColor = mix(texture2D(uBlueTex, csm_vUv),texture2D(uRedTex, csm_vUv), vSpeedBuffer) ;
+
+        vec4 color = mix(texture2D(uBlueTex, csm_vUv),texture2D(uRedTex, csm_vUv), smoothstep(0.2, 0.205, vSpeedBuffer));
+        csm_DiffuseColor = color*color;
+        csm_Emissive = vec3(0, 1,1) * vSpeedBuffer;
       }
       `,
 }
@@ -46,8 +54,9 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
 
     const camera = useThree((state) => state.camera)
 
-    const blueTex = useTexture('eye_blue.png')
-    const redTex = useTexture('eye_red.png')
+    const blueTex = useTexture('walawala.png')
+    const redTex = useTexture('walawala2.png')
+
 
     const rigidBodies = useRef();
     const mesh = useRef()
@@ -55,6 +64,14 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
     const speedBuffer = useMemo(() => {
         return new THREE.InstancedBufferAttribute(new Float32Array(count), 1);
     }, [])
+
+    useEffect(() => {
+        const buffer = new THREE.InstancedBufferAttribute(new Float32Array(count), 1);
+        for (let i = 0; i < count; i++)
+            buffer.setX(i, MathUtils.randInt(0, 1))
+        mesh.current.geometry.setAttribute('patternBuffer', buffer);
+    }, [])
+
 
 
     const audioPool = useMemo(() => {
@@ -116,7 +133,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
         mesh.current.geometry.setAttribute('speedBuffer', speedBuffer);
     })
 
-
+THREE.MeshStandardMaterial
     return (
         <InstancedRigidBodies
             ref={rigidBodies}
@@ -147,10 +164,9 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
                 <sphereGeometry args={[1, 32, 32]} />
                 <ThreeCustomShaderMaterial
                     baseMaterial={THREE.MeshStandardMaterial}
-                    roughness={0}
-                    envMapIntensity={1}
+                    roughness={0.2}
+                    envMapIntensity={0.5}
                     color='white'
-                    map={blueTex}
                     fragmentShader={patchShaders(shader.fragment)}
                     vertexShader={patchShaders(shader.vertex)}
                     uniforms={{

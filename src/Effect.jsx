@@ -1,5 +1,5 @@
 import { useThree } from "@react-three/fiber";
-import { EffectComposer, SMAA } from "@react-three/postprocessing";
+import { Bloom, DepthOfField, EffectComposer, GodRays, SMAA } from "@react-three/postprocessing";
 import { N8AOPostPass } from "n8ao";
 import { useEffect, useRef } from "react";
 
@@ -26,6 +26,11 @@ export default function Effect() {
     return <>
         <EffectComposer ref={composer} disableNormalPass multisampling={0}>
             <SMAA />
+            <Bloom
+                intensity={1.0} // The bloom intensity.
+                luminanceThreshold={0.95} // luminance threshold. Raise this value to mask out darker elements in the scene.
+                luminanceSmoothing={0.5} // smoothness of the luminance threshold. Range is [0, 1]
+            />
         </EffectComposer>
     </>
 }
