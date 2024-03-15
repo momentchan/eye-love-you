@@ -7,6 +7,6 @@ A project showcasing the potential of what web graphics can achieve.
 - PostEffects (AO, SMAA)
 - Outlines (useLayoutEffect)
 
-<img src='Screenshot.png' width="480px">
+<img src='Screenshot3.png' height="480px">
 
 [**Demo**](https://momentchan.github.io/eye-love-you/)
