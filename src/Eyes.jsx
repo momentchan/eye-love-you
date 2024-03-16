@@ -29,6 +29,7 @@ const shader = {
       varying vec2 csm_vUv;
 
       varying float vSpeedBuffer;
+      uniform float uTime;
       void main() {
         csm_DiffuseColor = mix(texture2D(uBlueTex, csm_vUv),texture2D(uRedTex, csm_vUv), vSpeedBuffer) ;
       }
@@ -67,10 +68,15 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
         { sources: ['50-d3.m4a', '53-f3.m4a', '58-a3.m4a', '60-c4.m4a'], range: [0.5, 0.75] }, //Dm7
         { sources: ['41-f2.m4a', '45-a2.m4a', '48-c3.m4a', '52-e3.m4a'], range: [0.75, 1] },] // Fmaj7
 
-        const progression3 = [{ sources: ['c3.wav', 'e3.wav', 'g3.wav', 'b3.wav'], range: [0, 0.25] },
-        { sources: ['c3.wav', 'e3.wav', 'g3.wav', 'a2.wav'], range: [0.25,0.5] }, 
-        { sources: ['d3.wav', 'f3.wav', 'a3.wav', 'c4.wav'], range: [0.5, 0.75] }, 
-        { sources: ['f2.wav', 'a2.wav', 'c3.wav', 'e3.wav'], range: [0.75, 1] }, ]
+        // const progression3 = [{ sources: ['c3.wav', 'e3.wav', 'g3.wav', 'b3.wav'], range: [0, 0.25] },
+        // { sources: ['c3.wav', 'e3.wav', 'g3.wav', 'a2.wav'], range: [0.25,0.5] }, 
+        // { sources: ['d3.wav', 'f3.wav', 'a3.wav', 'c4.wav'], range: [0.5, 0.75] }, 
+        // { sources: ['f2.wav', 'a2.wav', 'c3.wav', 'e3.wav'], range: [0.75, 1] }, ]
+
+        const progression3 = [{ sources: ['c2.wav', 'e2.wav', 'g2.wav', 'b2.wav'], range: [0, 0.25] },
+        { sources: ['c2.wav', 'e2.wav', 'g2.wav', 'a1.wav'], range: [0.25, 0.5] },
+        { sources: ['d2.wav', 'f2.wav', 'a2.wav', 'c3.wav'], range: [0.5, 0.75] },
+        { sources: ['f1.wav', 'a1.wav', 'c2.wav', 'e2.wav'], range: [0.75, 1] },]
 
         return new AudioPool(progression3, 200, true)
     }, [])
@@ -88,7 +94,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
         return instances
     }, [])
 
-    useFrame((state, delta) => {
+    useFrame(({ state, delta, clock }) => {
         if (!rigidBodies.current)
             return
 
@@ -118,6 +124,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
 
         speedBuffer.needsUpdate = true
         mesh.current.geometry.setAttribute('speedBuffer', speedBuffer);
+        mesh.current.material.uniforms.uTime.value = clock.elapsedTime
     })
 
 
@@ -134,6 +141,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
                 })
             }}
             onContactForce={(payload) => {
+                console.log(payload.target);
                 if (payload.totalForceMagnitude > 300) {
                     const volume = MathUtils.mapLinear(payload.totalForceMagnitude, 300, 1000, 0.02, 0.03)
 
@@ -159,7 +167,8 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
                     vertexShader={patchShaders(shader.vertex)}
                     uniforms={{
                         uBlueTex: { value: blueTex },
-                        uRedTex: { value: redTex }
+                        uRedTex: { value: redTex },
+                        uTime: { value: 0 }
                     }}
                 >
                 </ThreeCustomShaderMaterial>
