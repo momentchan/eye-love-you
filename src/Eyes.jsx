@@ -141,7 +141,6 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
                 })
             }}
             onContactForce={(payload) => {
-                console.log(payload.target);
                 if (payload.totalForceMagnitude > 300) {
                     const volume = MathUtils.mapLinear(payload.totalForceMagnitude, 300, 1000, 0.02, 0.03)
 
