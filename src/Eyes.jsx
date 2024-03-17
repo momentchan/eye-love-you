@@ -94,7 +94,8 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
         return instances
     }, [])
 
-    useFrame(({ state, delta, clock }) => {
+    useFrame(( state, delta ) => {
+        const clock = state.clock
         if (!rigidBodies.current)
             return
 
