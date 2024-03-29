@@ -8,10 +8,39 @@ import { useImperativeHandle } from 'react';
 
 export default forwardRef(function CubeMapScene(props, ref) {
     const mesh = useMemo(() => {
-        const geometry = new THREE.PlaneGeometry(20, 20, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 'red', side: THREE.DoubleSide });
+        const geometry = new THREE.PlaneGeometry(10, 10, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide});
         return new THREE.Mesh(geometry, material);
     }, []);
+
+
+
+    useEffect(() => {
+        const video = document.getElementById('video');
+        const texture = new THREE.VideoTexture(video);
+        texture.colorSpace = THREE.SRGBColorSpace;
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+
+            const constraints = { video: { width: 1280, height: 720, facingMode: 'user' } };
+
+            navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+                // apply the stream to the video element used in the texture
+                video.srcObject = stream;
+                video.play();
+
+            }).catch(function (error) {
+
+                console.error('Unable to access the camera/webcam.', error);
+            });
+
+        } else {
+
+            console.error('MediaDevices interface not available.');
+        }
+
+        mesh.material.map = texture
+    }, [])
 
     const vScene = useMemo(() => {
         const scene = new THREE.Scene();
@@ -44,7 +73,8 @@ export default forwardRef(function CubeMapScene(props, ref) {
 
     useFrame((state) => {
         const { camera } = state;
-        mesh.position.copy(camera.position);
+        const pos = camera.position.clone().normalize().multiplyScalar(2)
+        mesh.position.set(pos.x, pos.y, pos.z);
         mesh.lookAt(new THREE.Vector3(0, 0, 0))
 
         cubeCamera.update(state.gl, vScene);

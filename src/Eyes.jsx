@@ -129,7 +129,7 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
                 <ThreeCustomShaderMaterial
                     baseMaterial={THREE.MeshStandardMaterial}
                     roughness={0}
-                    metalness={1}
+                    // metalness={1}
                     envMapIntensity={1}
                     color='white'
                     map={blueTex}
