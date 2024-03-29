@@ -124,7 +124,11 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
 
             <instancedMesh
                 ref={mesh}
-                castShadow receiveShadow args={[null, null, count]}>
+                castShadow
+                receiveShadow
+                args={[null, null, count]}
+                frustumCulled={false}
+            >
                 <sphereGeometry args={[1, 32, 32]} />
                 <ThreeCustomShaderMaterial
                     baseMaterial={THREE.MeshStandardMaterial}

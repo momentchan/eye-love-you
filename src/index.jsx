@@ -14,7 +14,7 @@ function Overlay() {
                 <div className={`fullscreen bg ready ${clicked ? "clicked" : ""}`}>
                     <Button
                         className={clicked ? "unselectable" : ""} onClick={() => setClicked(true)}
-                        variant="text"
+                        variant="outlined"
                     >
                         Play
                     </Button>
