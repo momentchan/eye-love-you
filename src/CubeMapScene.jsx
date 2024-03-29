@@ -13,24 +13,22 @@ export default forwardRef(function CubeMapScene(props, ref) {
         return new THREE.Mesh(geometry, material);
     }, []);
 
-
-
     useEffect(() => {
         const video = document.getElementById('video');
         const texture = new THREE.VideoTexture(video);
         texture.colorSpace = THREE.SRGBColorSpace;
-
+        
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-
-            const constraints = { video: { width: 1280, height: 720, facingMode: 'user' } };
-
+            
+            const constraints = { video: { width: 360, height: 240, facingMode: 'user' } };
+            
             navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
                 // apply the stream to the video element used in the texture
                 video.srcObject = stream;
                 video.play();
+                console.log(texture);
 
             }).catch(function (error) {
-
                 console.error('Unable to access the camera/webcam.', error);
             });
 
