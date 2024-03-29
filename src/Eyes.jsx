@@ -61,17 +61,17 @@ export default function Eyes({ cubeScene, tracker, mat = new THREE.Matrix4(), ve
 
     const computeOffset = () => {
         const detected = tracker.current.getPredictions()
-        console.log(detected);
-        if (detected.length != 0) {
-            const bbox = detected[0].bbox
 
-            const x = (bbox[0] + bbox[2] * 0.5) / 640 - 0.5
-            const y = 1 - (bbox[1] + bbox[3] * 0.5) / 480 - 0.5
-            return [-x * 5, y * 2]
+        if (detected) {
+            if (detected.length != 0) {
+                const bbox = detected[0].bbox
+
+                const x = (bbox[0] + bbox[2] * 0.5) / 640 - 0.5
+                const y = 1 - (bbox[1] + bbox[3] * 0.5) / 480 - 0.5
+                return [-x * 5, y * 2]
+            }
         }
-        else {
-            return [0, 0]
-        }
+        return [0, 0]
     }
 
     useFrame((state, delta) => {
