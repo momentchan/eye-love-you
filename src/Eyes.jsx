@@ -9,32 +9,11 @@ import { InstancedRigidBodies, quat, vec3 } from '@react-three/rapier'
 import AudioPool from './r3f-gist/interaction/AudioPool'
 import { MathUtils } from 'three/src/math/MathUtils'
 
+import shader from './shaders/eyes'
+
 const count = 200
 const rfs = THREE.MathUtils.randFloatSpread
 
-const shader = {
-    vertex: /* glsl */ `
-      attribute float speedBuffer;
-      varying float vSpeedBuffer;
-      varying vec2 csm_vUv;
-      void main() {
-        vSpeedBuffer = speedBuffer;
-        csm_vUv = uv;
-        csm_PositionRaw = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(position, 1.);
-      }
-      `,
-    fragment: /* glsl */ `
-      uniform sampler2D uBlueTex;
-      uniform sampler2D uRedTex;
-      varying vec2 csm_vUv;
-
-      varying float vSpeedBuffer;
-      uniform float uTime;
-      void main() {
-        csm_DiffuseColor = mix(texture2D(uBlueTex, csm_vUv),texture2D(uRedTex, csm_vUv), vSpeedBuffer) ;
-      }
-      `,
-}
 const applyForce = (api, scaler) => {
     const pos = vec3(api.translation())
 
@@ -43,7 +22,7 @@ const applyForce = (api, scaler) => {
     api.applyImpulse(pos.normalize().multiplyScalar(scaler * interpolatedT))
 }
 
-export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector3(), ...props }) {
+export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new THREE.Vector3(), ...props }) {
 
     const camera = useThree((state) => state.camera)
 
@@ -59,26 +38,12 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
 
 
     const audioPool = useMemo(() => {
-        const progression1 = [{ sources: ['48-c3.m4a', '52-e3.m4a', '55-g3.m4a', '59-b3.m4a', '59-b3.m4a'], range: [0, 0.33] }, // Gmaj7
-        { sources: ['48-c3.m4a', '52-e3.m4a', '55-g3.m4a', '45-a2.m4a'], range: [0.33, 0.67] }, // Am7
-        { sources: ['52-e3.m4a', '55-g3.m4a', '59-b3.m4a', '62-d4.m4a'], range: [0.67, 1] },] // Em7
-
-        const progression2 = [{ sources: ['48-c3.m4a', '52-e3.m4a', '55-g3.m4a', '59-b3.m4a', '59-b3.m4a'], range: [0, 0.25] }, // Cmaj7
-        { sources: ['48-c3.m4a', '52-e3.m4a', '55-g3.m4a', '45-a2.m4a', '45-a2.m4a'], range: [0.25, 0.5] }, //Am7
-        { sources: ['50-d3.m4a', '53-f3.m4a', '58-a3.m4a', '60-c4.m4a'], range: [0.5, 0.75] }, //Dm7
-        { sources: ['41-f2.m4a', '45-a2.m4a', '48-c3.m4a', '52-e3.m4a'], range: [0.75, 1] },] // Fmaj7
-
-        // const progression3 = [{ sources: ['c3.wav', 'e3.wav', 'g3.wav', 'b3.wav'], range: [0, 0.25] },
-        // { sources: ['c3.wav', 'e3.wav', 'g3.wav', 'a2.wav'], range: [0.25,0.5] }, 
-        // { sources: ['d3.wav', 'f3.wav', 'a3.wav', 'c4.wav'], range: [0.5, 0.75] }, 
-        // { sources: ['f2.wav', 'a2.wav', 'c3.wav', 'e3.wav'], range: [0.75, 1] }, ]
-
-        const progression3 = [{ sources: ['c2.wav', 'e2.wav', 'g2.wav', 'b2.wav'], range: [0, 0.25] },
+        const progression = [{ sources: ['c2.wav', 'e2.wav', 'g2.wav', 'b2.wav'], range: [0, 0.25] },
         { sources: ['c2.wav', 'e2.wav', 'g2.wav', 'a1.wav'], range: [0.25, 0.5] },
         { sources: ['d2.wav', 'f2.wav', 'a2.wav', 'c3.wav'], range: [0.5, 0.75] },
         { sources: ['f1.wav', 'a1.wav', 'c2.wav', 'e2.wav'], range: [0.75, 1] },]
 
-        return new AudioPool(progression3, 200, true)
+        return new AudioPool(progression, 200, true)
     }, [])
 
     const instances = useMemo(() => {
@@ -94,7 +59,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
         return instances
     }, [])
 
-    useFrame(( state, delta ) => {
+    useFrame((state, delta) => {
         const clock = state.clock
         if (!rigidBodies.current)
             return
@@ -126,6 +91,10 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
         speedBuffer.needsUpdate = true
         mesh.current.geometry.setAttribute('speedBuffer', speedBuffer);
         mesh.current.material.uniforms.uTime.value = clock.elapsedTime
+
+        if (cubeScene.current) {
+            mesh.current.material.envMap = cubeScene.current.getCubeMap()
+        }
     })
 
 
@@ -145,7 +114,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
                 if (payload.totalForceMagnitude > 300) {
                     const volume = MathUtils.mapLinear(payload.totalForceMagnitude, 300, 1000, 0.02, 0.03)
 
-                    audioPool.playAudio(volume)
+                    // audioPool.playAudio(volume)
                 }
             }}
             linearDamping={0.8}
@@ -160,6 +129,7 @@ export default function Eyes({ mat = new THREE.Matrix4(), vec = new THREE.Vector
                 <ThreeCustomShaderMaterial
                     baseMaterial={THREE.MeshStandardMaterial}
                     roughness={0}
+                    metalness={1}
                     envMapIntensity={1}
                     color='white'
                     map={blueTex}

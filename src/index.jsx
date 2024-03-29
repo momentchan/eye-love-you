@@ -4,7 +4,7 @@ import App from './App'
 import { useState } from 'react'
 
 function Overlay() {
-    const [clicked, setClicked] = useState(false)
+    const [clicked, setClicked] = useState(true)
     return (
         <>
             {clicked && <App />}
