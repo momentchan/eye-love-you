@@ -1,44 +1,19 @@
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useEffect } from "react";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import { forwardRef } from 'react';
 import { useImperativeHandle } from 'react';
 
 export default forwardRef(function CubeMapScene(props, ref) {
+    const [enable, setEnable] = useState(false)
+
     const mesh = useMemo(() => {
         const geometry = new THREE.PlaneGeometry(10, 10, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide});
+        const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
         return new THREE.Mesh(geometry, material);
     }, []);
-
-    useEffect(() => {
-        const video = document.getElementById('video');
-        const texture = new THREE.VideoTexture(video);
-        texture.colorSpace = THREE.SRGBColorSpace;
-        
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            
-            const constraints = { video: { width: 360, height: 240, facingMode: 'user' } };
-            
-            navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
-                // apply the stream to the video element used in the texture
-                video.srcObject = stream;
-                video.play();
-                console.log(texture);
-
-            }).catch(function (error) {
-                console.error('Unable to access the camera/webcam.', error);
-            });
-
-        } else {
-
-            console.error('MediaDevices interface not available.');
-        }
-
-        mesh.material.map = texture
-    }, [])
 
     const vScene = useMemo(() => {
         const scene = new THREE.Scene();
@@ -58,6 +33,12 @@ export default forwardRef(function CubeMapScene(props, ref) {
     useImperativeHandle(ref, () => ({
         getCubeMap() {
             return cubeRenderTarget.texture
+        },
+
+        setVideoTexture(texture) {
+            mesh.material.map = texture
+            mesh.material.needsUpdate = true
+            setEnable(true)
         }
     }))
 
@@ -70,8 +51,11 @@ export default forwardRef(function CubeMapScene(props, ref) {
     }, [vScene]);
 
     useFrame((state) => {
+        if (!enable) return
+        
         const { camera } = state;
         const pos = camera.position.clone().normalize().multiplyScalar(2)
+
         mesh.position.set(pos.x, pos.y, pos.z);
         mesh.lookAt(new THREE.Vector3(0, 0, 0))
 

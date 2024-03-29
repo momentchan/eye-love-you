@@ -92,7 +92,7 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
         mesh.current.geometry.setAttribute('speedBuffer', speedBuffer);
         mesh.current.material.uniforms.uTime.value = clock.elapsedTime
 
-        if (cubeScene.current) {
+        if (cubeScene) {
             mesh.current.material.envMap = cubeScene.current.getCubeMap()
         }
     })
@@ -114,7 +114,7 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
                 if (payload.totalForceMagnitude > 300) {
                     const volume = MathUtils.mapLinear(payload.totalForceMagnitude, 300, 1000, 0.02, 0.03)
 
-                    // audioPool.playAudio(volume)
+                    audioPool.playAudio(volume)
                 }
             }}
             linearDamping={0.8}
@@ -129,6 +129,7 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
                 <ThreeCustomShaderMaterial
                     baseMaterial={THREE.MeshStandardMaterial}
                     roughness={0}
+                    silent
                     // metalness={1}
                     envMapIntensity={1}
                     color='white'
