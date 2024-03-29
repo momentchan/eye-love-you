@@ -28,10 +28,10 @@ export default function App() {
                 cubeScene.current.setVideoTexture(texture)
             } else {
                 console.log("Please enable video");
+                setUseWebcam(false)
             }
         });
     }, [])
-
 
     return <>
         <Canvas
@@ -54,7 +54,7 @@ export default function App() {
 
             <Physics gravity={[0, 0, 0]}>
                 <Pointer scale={3} />
-                <Eyes cubeScene={cubeScene} />
+                <Eyes cubeScene={useWebcam ? cubeScene : null} />
             </Physics>
 
             <Effect />
