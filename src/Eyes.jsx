@@ -22,7 +22,7 @@ const applyForce = (api, scaler) => {
     api.applyImpulse(pos.normalize().multiplyScalar(scaler * interpolatedT))
 }
 
-export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new THREE.Vector3(), ...props }) {
+export default function Eyes({ cubeScene, tracker, mat = new THREE.Matrix4(), vec = new THREE.Vector3(), ...props }) {
 
     const camera = useThree((state) => state.camera)
 
@@ -59,10 +59,28 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
         return instances
     }, [])
 
+    const computeOffset = () => {
+        const detected = tracker.current.getPredictions()
+        console.log(detected);
+        if (detected.length != 0) {
+            const bbox = detected[0].bbox
+
+            const x = (bbox[0] + bbox[2] * 0.5) / 640 - 0.5
+            const y = 1 - (bbox[1] + bbox[3] * 0.5) / 480 - 0.5
+            return [-x * 5, y * 2]
+        }
+        else {
+            return [0, 0]
+        }
+    }
+
     useFrame((state, delta) => {
         const clock = state.clock
         if (!rigidBodies.current)
             return
+
+
+        const offset = computeOffset()
 
         for (let i = 0; i < count; i++) {
             const api = rigidBodies.current[i]
@@ -81,16 +99,26 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
             const cameraPosition = camera.position.clone();
             const bodyPosition = vec3(api.translation());
             var currentQuaternion = quat(api.rotation()); // Current orientation of the body
-            const direction = cameraPosition.sub(bodyPosition).normalize(); // Direction from body to camera
+            let direction = cameraPosition.sub(bodyPosition).normalize(); // Direction from body to camera
+
+            const right = new THREE.Vector3().crossVectors(direction, new THREE.Vector3(0, 1, 0))
+            const up = new THREE.Vector3().crossVectors(right, direction)
+
+            direction = new THREE.Vector3().addVectors(direction, right.multiplyScalar(offset[0]))
+            direction = new THREE.Vector3().addVectors(direction, up.multiplyScalar(offset[1]))
+            direction.normalize()
+
             const targetQuaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), direction);
 
-            currentQuaternion.slerp(targetQuaternion, delta * (1 - ratio) * 0.5)
+            currentQuaternion.slerp(targetQuaternion, delta * (1 - ratio) * 5)
             api.setRotation(currentQuaternion)
         }
 
         speedBuffer.needsUpdate = true
         mesh.current.geometry.setAttribute('speedBuffer', speedBuffer);
         mesh.current.material.uniforms.uTime.value = clock.elapsedTime
+
+
 
         if (cubeScene) {
             mesh.current.material.envMap = cubeScene.current.getCubeMap()
