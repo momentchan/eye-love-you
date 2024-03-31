@@ -9,31 +9,35 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from 'three'
 
 import { startVideo } from "./r3f-gist/utility/VideoLoader";
+import useGlobalStore from "./r3f-gist/utility/useGlobalStore";
 
 export default function App() {
     const cubeScene = useRef()
     const [useWebcam, setUseWebcam] = useState(false)
+    const isMobile = useGlobalStore(state => state.isMobile)
 
     useEffect(() => {
-        const video = document.getElementById('video');
-        startVideo(video).then(function (status) {
-            console.log("video started", status);
+        if (!isMobile) {
+            const video = document.getElementById('video');
+            startVideo(video).then(function (status) {
+                console.log("video started", status);
 
-            if (status.status) {
-                console.log("Video started. Now tracking");
+                if (status.status) {
+                    console.log("Video started. Now tracking");
 
-                setUseWebcam(true)
+                    setUseWebcam(true)
 
-                const texture = new THREE.VideoTexture(video);
-                texture.colorSpace = THREE.SRGBColorSpace;
-                cubeScene.current.setVideoTexture(texture)
-            } else {
-                console.log("Please enable video");
-            }
-        });
+                    const texture = new THREE.VideoTexture(video);
+                    texture.colorSpace = THREE.SRGBColorSpace;
+                    cubeScene.current.setVideoTexture(texture)
+                } else {
+                    console.log("Please enable video");
+                }
+            });
+        }
     }, [])
 
-    
+
     return <>
         <Canvas
             gl={{ antialias: false }}
