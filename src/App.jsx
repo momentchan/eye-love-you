@@ -18,7 +18,8 @@ export default function App() {
         const video = document.getElementById('video');
         startVideo(video).then(function (status) {
             console.log("video started", status);
-            if (status) {
+
+            if (status.status) {
                 console.log("Video started. Now tracking");
 
                 setUseWebcam(true)
@@ -28,11 +29,11 @@ export default function App() {
                 cubeScene.current.setVideoTexture(texture)
             } else {
                 console.log("Please enable video");
-                setUseWebcam(false)
             }
         });
     }, [])
 
+    
     return <>
         <Canvas
             gl={{ antialias: false }}

@@ -5,13 +5,27 @@ import { useEffect } from "react";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import { forwardRef } from 'react';
 import { useImperativeHandle } from 'react';
+import frgmentShader from './shaders/cubemap/fragment.glsl'
+import CustomShaderMaterial from 'three-custom-shader-material/vanilla'
 
 export default forwardRef(function CubeMapScene(props, ref) {
     const [enable, setEnable] = useState(false)
 
     const mesh = useMemo(() => {
         const geometry = new THREE.PlaneGeometry(10, 10, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+        const material = new CustomShaderMaterial({
+            baseMaterial: THREE.MeshBasicMaterial,
+
+            vertexShader: `
+            varying vec2 csm_vUv;
+            void main() {
+              csm_vUv = uv;
+            }
+            `,
+            fragmentShader: frgmentShader,
+            transparent: true,
+            silent: true
+        })
         return new THREE.Mesh(geometry, material);
     }, []);
 
@@ -52,7 +66,7 @@ export default forwardRef(function CubeMapScene(props, ref) {
 
     useFrame((state) => {
         if (!enable) return
-        
+
         const { camera } = state;
         const pos = camera.position.clone().normalize().multiplyScalar(2)
 
