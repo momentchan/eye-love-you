@@ -147,7 +147,7 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
                     }}
                 >
                 </ThreeCustomShaderMaterial>
-                <Outlines thickness={0.01} />
+                <Outlines transparent thickness={0.02} />
             </instancedMesh>
         </InstancedRigidBodies>
     )
