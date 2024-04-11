@@ -32,8 +32,8 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
     const rigidBodies = useRef();
     const mesh = useRef()
 
-    const speedBuffer = useMemo(() => {
-        return new THREE.InstancedBufferAttribute(new Float32Array(count), 1);
+    const speedArray = useMemo(() => {
+        return new Float32Array(count);
     }, [])
 
 
@@ -75,7 +75,7 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
             const vel = api.linvel()
             const speed = Math.sqrt(vel.x ** 2 + vel.y ** 2 + vel.z ** 2);
             const ratio = THREE.MathUtils.clamp(Math.pow(speed / 6, 3), 0, 1)
-            speedBuffer.setX(i, ratio)
+            speedArray[i] = ratio
 
             // torque
             const cameraPosition = camera.position.clone();
@@ -88,8 +88,7 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
             api.setRotation(currentQuaternion)
         }
 
-        speedBuffer.needsUpdate = true
-        mesh.current.geometry.setAttribute('speedBuffer', speedBuffer);
+        mesh.current.geometry.attributes.speedBuffer.needsUpdate = true
         mesh.current.material.uniforms.uTime.value = clock.elapsedTime
 
         if (cubeScene) {
@@ -129,7 +128,9 @@ export default function Eyes({ cubeScene, mat = new THREE.Matrix4(), vec = new T
                 args={[null, null, count]}
                 frustumCulled={false}
             >
-                <sphereGeometry args={[1, 32, 32]} />
+                <sphereGeometry args={[1, 32, 32]}>
+                    <instancedBufferAttribute attach="attributes-speedBuffer" args={[speedArray, 1]} />
+                </sphereGeometry>
                 <ThreeCustomShaderMaterial
                     baseMaterial={THREE.MeshStandardMaterial}
                     roughness={0}
